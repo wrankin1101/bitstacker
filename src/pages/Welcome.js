@@ -2,24 +2,48 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { alpha } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import logo from "../images/bitstacker-manual-white.png";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+
+import AppTheme from "../shared-theme/AppTheme";
+
 function Welcome() {
   return (
-    <>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <h1 className="text-4xl font-bold text-primary mb-4">
-          Crypto Portfolio Tracker
-        </h1>
-        <p className="text-lg text-white">
-          Track your crypto holdings in real-time!
-        </p>
+    <AppTheme>
+      <Box
+        sx={{
+          justifyContent: "center",
+          alignItems: "center",
+          mt: 10,
+          p: 4,
+        }}
+      >
+        <Stack
+          spacing={2}
+          sx={{
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <img src={logo} alt="#" />
+          <Typography variant="h1" gutterBottom>
+            Crypto Portfolio Tracker
+          </Typography>
+          <Typography variant="h5" gutterBottom>
+            Track your crypto holdings in real-time!
+          </Typography>
 
-        <Link
-          to="/dashboard" // Link to the dashboard route
-          className="mt-6 px-6 py-2 bg-success text-black rounded-lg hover:bg-secondary">
-          Get Started
-        </Link>
-      </div>
-    </>
+          <Link to="/dashboard">
+            <Button variant="contained" color="secondary">Get Started</Button>
+          </Link>
+        </Stack>
+      </Box>
+    </AppTheme>
   );
 }
 

@@ -19,6 +19,29 @@ function AppTheme({ children, disableCustomTheme, themeComponents }) {
             colorSchemeSelector: 'data-mui-color-scheme',
             cssVarPrefix: 'template',
           },
+          palette: {
+            primary: {
+              main: '#ff00ff', //pink
+            },
+            secondary: {
+              main: '#00ffff', //teal
+            },
+            error: {
+              main: '#ff0000', //red
+            },
+            info: {
+              main: '#0000ff', //blue
+            },
+            success: {
+              main: '#00ff00', //green
+            },
+            background: {
+              default: '#000000', //black
+            },
+            warning: {
+              main: '#ffff00', //yellow
+            }
+          },
           colorSchemes, // Recently added in v6 for building light & dark mode app, see https://mui.com/material-ui/customization/palette/#color-schemes
           typography,
           shadows,

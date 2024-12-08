@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -11,21 +12,21 @@ import HighlightedCard from './HighlightedCard';
 import PageViewsBarChart from './PageViewsBarChart';
 import SessionsChart from './SessionsChart';
 import StatCard from './StatCard';
+import { fetchDashboardData } from '../data/api';
 
 const data = [
   {
-    title: 'Users',
-    value: '14k',
+    title: 'Total',
+    value: '$ 9,963.15 ',
     interval: 'Last 30 days',
     trend: 'up',
     data: [
-      200, 24, 220, 260, 240, 380, 100, 240, 280, 240, 300, 340, 320, 360, 340, 380,
-      360, 400, 380, 420, 400, 640, 340, 460, 440, 480, 460, 600, 880, 920,
+      10403.74,10023.08,10098.78,9963.15,9696.02,10037.79,10017.90,9899.57,9620.67,9921.20,9921.20,9875.44,9800.88,9766.80,9786.81,9812.82,9476.92,9531.43,9665.93,9665.93,9041.52,8884.43,9084.41,9141.45,9099.45,8993.82,9043.70,8176.43,8176.43,8099.15
     ],
   },
   {
-    title: 'Conversions',
-    value: '325',
+    title: 'Net Spent',
+    value: '$ 1,856.62',
     interval: 'Last 30 days',
     trend: 'down',
     data: [
@@ -34,8 +35,8 @@ const data = [
     ],
   },
   {
-    title: 'Event count',
-    value: '200k',
+    title: 'Profit',
+    value: ' $ 10,249.78 ',
     interval: 'Last 30 days',
     trend: 'neutral',
     data: [
@@ -46,6 +47,15 @@ const data = [
 ];
 
 export default function MainGrid() {
+  const [apidata, setData] = useState([]);
+  const [interval, setInterval] = useState(30);
+
+  useEffect(() => {
+    fetchDashboardData()
+        .then((apidata) => setData(apidata))
+        .catch((error) => console.error(error));
+  }, []);
+
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
       {/* cards */}
