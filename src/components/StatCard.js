@@ -32,6 +32,7 @@ function StatCard({
   intervalString,
   trend,
   percentChange,
+  usdChange,
   data,
   dates,
   min,
@@ -80,7 +81,11 @@ function StatCard({
               <Typography variant="h4" component="p">
                 {value}
               </Typography>
+              <Stack sx={{ justifyContent: "space-between", gap: 1}}>
               <Chip size="small" color={color} label={percentChange} />
+              <Chip size="small" color={color} label={usdChange} />
+              </Stack>
+              
             </Stack>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               {intervalString}
@@ -130,6 +135,7 @@ StatCard.propTypes = {
   intervalString: PropTypes.string.isRequired,
   trend: PropTypes.oneOf(["down", "neutral", "up"]).isRequired,
   percentChange: PropTypes.string.isRequired,
+  usdChange: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.number).isRequired,
   dates: PropTypes.arrayOf(PropTypes.string).isRequired,
   min: PropTypes.number.isRequired,

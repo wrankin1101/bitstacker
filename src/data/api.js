@@ -44,15 +44,12 @@ export const processData = (data, interval) => {
     const dateB = new Date(b.date);
     return dateA - dateB;
   });
-  // A - B = sorted oldest -> newest
-  // B - A = sorted newest -> oldest
+  // A - B = sorted oldest first -> newest last
+  // B - A = sorted newest first -> oldest last
 
   //cutoff past interval
-  let cutoffDate = new Date();
-  const newestDate = new Date(sortedByDate[0].date);
-
-  cutoffDate = new Date(newestDate); 
-  cutoffDate.setDate(newestDate.getDate() - interval); 
+  const newestDate = new Date(sortedByDate[sortedByDate.length-1].date);
+  const cutoffDate = new Date(newestDate.getTime() - interval * 24 * 60 * 60 * 1000); // Subtract interval in milliseconds
 
   let dateCutoff = sortedByDate.filter((item) => {
     const itemDate = new Date(item.date);
@@ -62,14 +59,24 @@ export const processData = (data, interval) => {
   const oldestValue = dateCutoff[0].value;
 
   let percentChange = newestValue / oldestValue - 1;
+  
   let formattedPercent = new Intl.NumberFormat("en-US", {
     style: "percent",
     maximumFractionDigits: 2,
   }).format(percentChange);
 
+  let usdChange = newestValue - oldestValue;
+  let formattedUsdChange = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(usdChange)
+
   if (percentChange > 0) {
     formattedPercent = `+${formattedPercent}`;
+    formattedUsdChange = `+${formattedUsdChange}`;
   }
+
+  
 
   let trend = "neutral";
   if (percentChange > 0.05) {
@@ -96,6 +103,7 @@ export const processData = (data, interval) => {
     trend: trend,
     rawpercent: percentChange,
     percentChange: formattedPercent,
+    usdChange: formattedUsdChange
   };
   console.log(processedData);
   // Return processed data
