@@ -22,7 +22,7 @@ export default function HighlightedCard() {
           gutterBottom
           sx={{ fontWeight: '600' }}
         >
-          Explore your data
+          ????
         </Typography>
         <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
           Uncover performance and visitor insights with our data wizardry.

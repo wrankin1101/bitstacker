@@ -16,7 +16,7 @@ const App = () => {
         <Route path="/home" element={<Welcome />} />
 
         {/* Routes inside the Layout */}
-        <Route path="/dashboard" element={<Layout children={<MainGrid />} props={null} />} />
+        <Route path="/dashboard" element={<Layout children={<MainGrid />} />} />
       </Routes>
       <ScrollToAnchor />
     </>

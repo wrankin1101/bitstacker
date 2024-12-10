@@ -37,10 +37,10 @@ export default function Layout({children, props}) {
           component="main"
           sx={(theme) => ({
             flexGrow: 1,
+            overflow: 'auto',
             backgroundColor: theme.vars
               ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-              : alpha(theme.palette.background.default, 1),
-            overflow: 'auto',
+              : alpha(theme.palette.background.default, 1)
           })}
         >
           <Stack
@@ -53,9 +53,7 @@ export default function Layout({children, props}) {
             }}
           >
             <Header />
-            <Box>
             {children}
-            </Box>
             
           </Stack>
         </Box>

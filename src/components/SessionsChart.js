@@ -39,7 +39,7 @@ function getDaysInMonth(month, year) {
   return days;
 }
 
-export default function SessionsChart() {
+export default function SessionsChart({interval}) {
   const theme = useTheme();
   const data = getDaysInMonth(4, 2024);
 
@@ -53,7 +53,7 @@ export default function SessionsChart() {
     <Card variant="outlined" sx={{ width: '100%' }}>
       <CardContent>
         <Typography component="h2" variant="subtitle2" gutterBottom>
-          Sessions
+          Performance
         </Typography>
         <Stack sx={{ justifyContent: 'space-between' }}>
           <Stack
@@ -70,7 +70,7 @@ export default function SessionsChart() {
             <Chip size="small" color="success" label="+35%" />
           </Stack>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Sessions per day for the last 30 days
+            Performance for the last {interval} days
           </Typography>
         </Stack>
         <LineChart
