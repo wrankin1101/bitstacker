@@ -15,4 +15,15 @@ db.exec(schema);
 
 console.log('Database initialized with schema.');
 
+//create default user for development
+const userExists = db.prepare(`SELECT 1 FROM users LIMIT 1`).get();
+if (!userExists) {
+  const createUser = db.prepare(`
+    INSERT INTO users (username, email, password) 
+    VALUES (?, ?, ?)
+  `);
+  createUser.run('default_user', 'default@example.com', 'default1234');
+  console.log('Default user created for development.');
+}
+
 module.exports = db;
