@@ -7,9 +7,13 @@
 
 # testing
 /coverage
+/.vscode
 
 # production
 /build
+
+#database
+db/database.sqlite
 
 # misc
 .DS_Store
