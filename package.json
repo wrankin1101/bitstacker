@@ -34,7 +34,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "init-db": "node db/init.js"
+    "init-db": "node db/init.js init",
+    "reset-db": "node db/init.js reset"
   },
   "eslintConfig": {
     "extends": [
