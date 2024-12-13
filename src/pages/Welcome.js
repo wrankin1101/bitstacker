@@ -15,8 +15,12 @@ import AppTheme from "../shared-theme/AppTheme";
 import { useQuery } from '@tanstack/react-query';
 import api from '../services/api';
 
-function Welcome(userId = 1) {
-  const { data, isLoading, error } = useQuery({ queryKey:['helloWorld'], queryFn:api.helloWorld });
+function Welcome({userId = 1}) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['getUserById', userId],
+    queryFn: () => api.getUserById(userId),
+    enabled: !!userId, //query doesn't run if userId is undefined
+  });
   console.log(data)
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

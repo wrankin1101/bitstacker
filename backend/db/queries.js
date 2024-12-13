@@ -5,8 +5,13 @@ module.exports = {
     return stmt.run(username, email, password);
   },
   getUserById: (db, id) => {
-    const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-    return stmt.get(id);
+    console.log('Looking for user with ID:', id);
+        const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
+        const result = stmt.get(Number(id)); // Ensure ID is numeric
+        if (!result) {
+            console.log('No user found with the given ID.');
+        }
+        return result;
   },
   getUserByEmail: (db, email) => {
     const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
