@@ -12,7 +12,15 @@ import Button from "@mui/material/Button";
 
 import AppTheme from "../shared-theme/AppTheme";
 
-function Welcome() {
+import { useQuery } from '@tanstack/react-query';
+import api from '../services/api';
+
+function Welcome(userId = 1) {
+  const { data, isLoading, error } = useQuery({ queryKey:['helloWorld'], queryFn:api.helloWorld });
+  console.log(data)
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <AppTheme>
       <Box

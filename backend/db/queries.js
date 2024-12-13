@@ -1,21 +1,18 @@
-// db/queries.js
-const db = require('./init');
-
 module.exports = {
   // User Queries
-  createUser: (username, email, password) => {
+  createUser: (db, username, email, password) => {
     const stmt = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
     return stmt.run(username, email, password);
   },
-  getUserById: (id) => {
+  getUserById: (db, id) => {
     const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
     return stmt.get(id);
   },
-  getUserByEmail: (email) => {
+  getUserByEmail: (db, email) => {
     const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
     return stmt.get(email);
   },
-  updateUser: (id, updates) => {
+  updateUser: (db, id, updates) => {
     const updateFields = [];
     const values = [];
 
@@ -36,39 +33,39 @@ module.exports = {
     const stmt = db.prepare(`UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
-  deleteUser: (id) => {
+  deleteUser: (db, id) => {
     const stmt = db.prepare('DELETE FROM users WHERE id = ?');
     return stmt.run(id);
   },
 
   // Portfolio Queries
-  createPortfolio: (userId, name) => {
+  createPortfolio: (db, userId, name) => {
     const stmt = db.prepare('INSERT INTO portfolios (user_id, name) VALUES (?, ?)');
     return stmt.run(userId, name);
   },
-  getPortfoliosByUserId: (userId) => {
+  getPortfoliosByUserId: (db, userId) => {
     const stmt = db.prepare('SELECT * FROM portfolios WHERE user_id = ?');
     return stmt.all(userId);
   },
-  updatePortfolioName: (id, name) => {
+  updatePortfolioName: (db, id, name) => {
     const stmt = db.prepare('UPDATE portfolios SET name = ? WHERE id = ?');
     return stmt.run(name, id);
   },
-  deletePortfolio: (id) => {
+  deletePortfolio: (db, id) => {
     const stmt = db.prepare('DELETE FROM portfolios WHERE id = ?');
     return stmt.run(id);
   },
 
   // Holding Queries
-  createHolding: (portfolioId, name, category) => {
+  createHolding: (db, portfolioId, name, category) => {
     const stmt = db.prepare('INSERT INTO holdings (portfolio_id, name, category) VALUES (?, ?, ?)');
     return stmt.run(portfolioId, name, category);
   },
-  getHoldingsByPortfolioId: (portfolioId) => {
+  getHoldingsByPortfolioId: (db, portfolioId) => {
     const stmt = db.prepare('SELECT * FROM holdings WHERE portfolio_id = ?');
     return stmt.all(portfolioId);
   },
-  updateHolding: (id, updates) => {
+  updateHolding: (db, id, updates) => {
     const updateFields = [];
     const values = [];
 
@@ -85,21 +82,21 @@ module.exports = {
     const stmt = db.prepare(`UPDATE holdings SET ${updateFields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
-  deleteHolding: (id) => {
+  deleteHolding: (db, id) => {
     const stmt = db.prepare('DELETE FROM holdings WHERE id = ?');
     return stmt.run(id);
   },
 
   // Asset Queries
-  createAsset: (holdingId, symbol, name) => {
+  createAsset: (db, holdingId, symbol, name) => {
     const stmt = db.prepare('INSERT INTO assets (holding_id, symbol, name) VALUES (?, ?, ?)');
     return stmt.run(holdingId, symbol, name);
   },
-  getAssetsByHoldingId: (holdingId) => {
+  getAssetsByHoldingId: (db, holdingId) => {
     const stmt = db.prepare('SELECT * FROM assets WHERE holding_id = ?');
     return stmt.all(holdingId);
   },
-  updateAsset: (id, updates) => {
+  updateAsset: (db, id, updates) => {
     const updateFields = [];
     const values = [];
 
@@ -120,25 +117,25 @@ module.exports = {
     const stmt = db.prepare(`UPDATE assets SET ${updateFields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
-  deleteAsset: (id) => {
+  deleteAsset: (db, id) => {
     const stmt = db.prepare('DELETE FROM assets WHERE id = ?');
     return stmt.run(id);
   },
 
   // Transaction Queries
-  createTransaction: (portfolioId, assetId, transactionType, quantity, price) => {
+  createTransaction: (db, portfolioId, assetId, transactionType, quantity, price) => {
     const stmt = db.prepare('INSERT INTO transactions (portfolio_id, asset_id, transaction_type, quantity, price) VALUES (?, ?, ?, ?, ?)');
     return stmt.run(portfolioId, assetId, transactionType, quantity, price);
   },
-  getTransactionsByPortfolioId: (portfolioId) => {
+  getTransactionsByPortfolioId: (db, portfolioId) => {
     const stmt = db.prepare('SELECT * FROM transactions WHERE portfolio_id = ?');
     return stmt.all(portfolioId);
   },
-  getTransactionsByAssetId: (assetId) => {
+  getTransactionsByAssetId: (db, assetId) => {
     const stmt = db.prepare('SELECT * FROM transactions WHERE asset_id = ?');
     return stmt.all(assetId);
   },
-  updateTransaction: (id, updates) => {
+  updateTransaction: (db, id, updates) => {
     const updateFields = [];
     const values = [];
 
@@ -159,25 +156,25 @@ module.exports = {
     const stmt = db.prepare(`UPDATE transactions SET ${updateFields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
-  deleteTransaction: (id) => {
+  deleteTransaction: (db, id) => {
     const stmt = db.prepare('DELETE FROM transactions WHERE id = ?');
     return stmt.run(id);
   },
 
   // Asset Price Queries
-  createAssetPrice: (assetId, price) => {
+  createAssetPrice: (db, assetId, price) => {
     const stmt = db.prepare('INSERT INTO asset_prices (asset_id, price) VALUES (?, ?)');
     return stmt.run(assetId, price);
   },
-  getAssetPricesById: (assetId) => {
+  getAssetPricesById: (db, assetId) => {
     const stmt = db.prepare('SELECT * FROM asset_prices WHERE asset_id = ? ORDER BY date DESC');
     return stmt.all(assetId);
   },
-  getLatestAssetPrice: (assetId) => {
+  getLatestAssetPrice: (db, assetId) => {
     const stmt = db.prepare('SELECT * FROM asset_prices WHERE asset_id = ? ORDER BY date DESC LIMIT 1');
     return stmt.get(assetId);
   },
-  deleteAssetPrice: (id) => {
+  deleteAssetPrice: (db, id) => {
     const stmt = db.prepare('DELETE FROM asset_prices WHERE id = ?');
     return stmt.run(id);
   }
