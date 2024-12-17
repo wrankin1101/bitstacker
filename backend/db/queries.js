@@ -4,6 +4,15 @@ module.exports = {
     const stmt = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
     return stmt.run(username, email, password);
   },
+  getUserByEmailPassword: (db, email, password) => {
+    console.log('Logging in User:', email);
+        const stmt = db.prepare('SELECT * FROM users WHERE email = ? AND password = ?');
+        const result = stmt.get(email,password); // Ensure ID is numeric
+        if (!result) {
+            console.log('No user found with this email/pw.');
+        }
+        return result;
+  },
   getUserById: (db, id) => {
     console.log('Looking for user with ID:', id);
         const stmt = db.prepare('SELECT * FROM users WHERE id = ?');

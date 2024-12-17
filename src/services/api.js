@@ -28,6 +28,16 @@ const api = {
     }
   },
 
+  loginUser: async (email, password) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/loginUser`, { email, password });
+      return response.data;
+    } catch (error) {
+      console.error("Error in loginUser:", error);
+      throw error;
+    }
+  },
+
   getUserById: async (id) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getUserById`, {

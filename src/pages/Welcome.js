@@ -1,29 +1,47 @@
 // src/App.js
-import React from "react";
-import { Link } from "react-router-dom";
-
+import React, {useState, useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import logo from "../images/bitstacker-manual-white.png";
-import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
+import { Box, Stack, Typography, Button, FormControl, Input, InputLabel, Divider, CircularProgress } from "@mui/material";
+import { useUser } from "../context/UserContext";
 
 import AppTheme from "../shared-theme/AppTheme";
 
-import { useQuery } from '@tanstack/react-query';
-import api from '../services/api';
+function Welcome() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { user, login, logout, isLoading, error } = useUser();
+  const navigate = useNavigate(); // Hook for navigation
 
-function Welcome({userId = 1}) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['getUserById', userId],
-    queryFn: () => api.getUserById(userId),
-    enabled: !!userId, //query doesn't run if userId is undefined
+  //react query
+  /*const { data, isLoading, error } = useQuery({
+    queryKey: ["login", defaultEmail, password],
+    queryFn: () => api.loginUser(defaultEmail, password),
+    enabled: !!defaultEmail || !!password, //query doesn't run if userId is undefined
   });
-  console.log(data)
+  console.log(data);
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error.message}</div>;*/
+
+  
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]); // Redirect when `user` is updated
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login( email, password );
+      // handle success
+    } catch (error) {
+      // handle error
+    }
+  };
 
   return (
     <AppTheme>
@@ -50,9 +68,35 @@ function Welcome({userId = 1}) {
             Track your crypto holdings in real-time!
           </Typography>
 
-          <Link to="/dashboard">
-            <Button variant="contained" color="secondary">Get Started</Button>
-          </Link>
+          <form onSubmit={handleSubmit}>
+            <Stack>
+              <FormControl>
+                <InputLabel htmlFor="email-input">Email address</InputLabel>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  id="email-input"
+                  sx={{ marginBottom: 2 }}
+                />
+              </FormControl>
+              <FormControl>
+                <InputLabel htmlFor="pw-input">Password</InputLabel>
+                <Input
+                  id="pw-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormControl>
+              <Divider sx={{ margin: 2 }} />
+              {!isLoading && <Button type="submit" variant="contained" color="secondary">
+                Login
+              </Button>}
+              {isLoading && <CircularProgress sx={{alignSelf:"center"}}/>}
+              {error && <Typography sx={{color: "error.main"}}>{error}</Typography>}
+            </Stack>
+          </form>
         </Stack>
       </Box>
     </AppTheme>

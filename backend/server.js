@@ -35,6 +35,21 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
+app.post("/api/loginUser", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = queries.getUserByEmailPassword(db, email, password);
+    console.log(user);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
+  } catch (error) {
+    console.error("Error in loginUser:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to login user", details: error.message });
+  }
+});
+
 app.get("/api/getUserById", async (req, res) => {
   try {
     console.log('query',req.query)
