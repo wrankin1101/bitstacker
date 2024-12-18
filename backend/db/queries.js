@@ -53,6 +53,21 @@ module.exports = {
   },
 
   // Portfolio Queries
+  getOrCreatePortfolio: (db, userId) => {
+    const checkStmt = db.prepare('SELECT * FROM portfolios WHERE user_id = ?');
+    const portfolios = checkStmt.all(userId);
+
+    if (portfolios?.length){
+      console.log("user has portfolios of length:", portfolios.length);
+      return portfolios
+    };
+    console.log("user has no portfolios, creating...")
+    const createStmt = db.prepare('INSERT INTO portfolios (user_id, name) VALUES (?, ?)');
+    createStmt.run(userId, "Default");
+
+    // Fetch and return the newly created portfolio
+    return checkStmt.all(userId);
+  },
   createPortfolio: (db, userId, name) => {
     const stmt = db.prepare('INSERT INTO portfolios (user_id, name) VALUES (?, ?)');
     return stmt.run(userId, name);

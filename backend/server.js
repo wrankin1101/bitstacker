@@ -125,7 +125,9 @@ app.post("/api/createPortfolio", async (req, res) => {
 app.get("/api/getPortfoliosByUserId", async (req, res) => {
   try {
     const { userId } = req.query;
-    const portfolios = queries.getPortfoliosByUserId(userId);
+
+    let portfolios = queries.getOrCreatePortfolio(db, userId);
+    console.log("users portfolios:", portfolios);
     res.json(portfolios);
   } catch (error) {
     console.error("Error in getPortfoliosByUserId:", error);

@@ -5,13 +5,17 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListSubheader from '@mui/material/ListSubheader';
-import Select, { SelectChangeEvent, selectClasses } from '@mui/material/Select';
+import Select, { selectClasses } from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import { styled } from '@mui/material/styles';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 import SmartphoneRoundedIcon from '@mui/icons-material/SmartphoneRounded';
 import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
+
+import { useQuery } from '@tanstack/react-query';
+import api from '../services/api';
+import { useUser } from "../context/UserContext";
 
 const Avatar = styled(MuiAvatar)(({ theme }) => ({
   width: 28,
@@ -26,11 +30,23 @@ const ListItemAvatar = styled(MuiListItemAvatar)({
   marginRight: 12,
 });
 
-export default function SelectContent() {
+export default function SelectPortfolio() {
   const [company, setCompany] = React.useState('');
+  const { user } = useUser();
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setCompany(event.target.value as string);
+  //react query
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["getPortfolios", user.id],
+    queryFn: () => api.getPortfoliosByUserId(user.id),
+    enabled: !!user || !!user.id, //query doesn't run if userId is undefined
+  });
+  console.log('portfolios',data);
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  
+
+  const handleChange = (event) => {
+    setCompany(event.target.value);
   };
 
   return (
@@ -56,7 +72,7 @@ export default function SelectContent() {
         },
       }}
     >
-      <ListSubheader sx={{ pt: 0 }}>Production</ListSubheader>
+      <ListSubheader sx={{ pt: 0 }}>Portfolios</ListSubheader>
       <MenuItem value="">
         <ListItemAvatar>
           <Avatar alt="Sitemark web">

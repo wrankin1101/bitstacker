@@ -15,18 +15,6 @@ function Welcome() {
   const { user, login, logout, isLoading, error } = useUser();
   const navigate = useNavigate(); // Hook for navigation
 
-  //react query
-  /*const { data, isLoading, error } = useQuery({
-    queryKey: ["login", defaultEmail, password],
-    queryFn: () => api.loginUser(defaultEmail, password),
-    enabled: !!defaultEmail || !!password, //query doesn't run if userId is undefined
-  });
-  console.log(data);
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;*/
-
-  
-
   useEffect(() => {
     if (user) {
       navigate("/dashboard", { replace: true });

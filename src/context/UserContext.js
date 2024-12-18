@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [activePortfolio, setPortfolio] = useState(null);
   
     const login = async (email, password) => {
       setIsLoading(true);
@@ -23,7 +24,9 @@ export const UserProvider = ({ children }) => {
     };
   
     const logout = () => {
-      setUser(null); // Clear user state
+        setIsLoading(false);
+        setError(null);
+        setUser(null); // Clear user state
       // Optionally clear tokens or local storage
     };
   
