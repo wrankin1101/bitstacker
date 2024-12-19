@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -15,6 +15,16 @@ CREATE TABLE IF NOT EXISTS portfolios (
     name TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    portfolio_id INTEGER NOT NULL,
+    date TEXT DEFAULT CURRENT_TIMESTAMP,
+    total REAL NOT NULL,
+    net_spent REAL NOT NULL,
+    profit REAL NOT NULL,
+    FOREIGN KEY (portfolio_id) REFERENCES portfolios (id)
 );
 
 CREATE TABLE IF NOT EXISTS holdings (

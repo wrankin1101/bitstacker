@@ -1,9 +1,13 @@
 module.exports = {
   // User Queries
   createUser: (db, username, email, password) => {
+    console.log("creating user: ",username)
     const stmt = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
-    return stmt.run(username, email, password);
+    const result = stmt.run(username, email, password);
+    console.log("user creation result:",result);
+    return result;
   },
+
   getUserByEmailPassword: (db, email, password) => {
     console.log('Logging in User:', email);
         const stmt = db.prepare('SELECT * FROM users WHERE email = ? AND password = ?');
@@ -63,7 +67,7 @@ module.exports = {
     };
     console.log("user has no portfolios, creating...")
     const createStmt = db.prepare('INSERT INTO portfolios (user_id, name) VALUES (?, ?)');
-    createStmt.run(userId, "Default");
+    createStmt.run(userId, "Portfolio 1");
 
     // Fetch and return the newly created portfolio
     return checkStmt.all(userId);

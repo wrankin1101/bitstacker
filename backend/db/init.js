@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
+const queries = require("./queries");
 
 const dbPath = path.resolve(__dirname, 'database.sqlite');
 const schemaPath = path.resolve(__dirname, 'schema.sql');
@@ -27,12 +28,13 @@ function initializeDatabase(options = {}) {
   // Create default user for development
   const userExists = db.prepare(`SELECT 1 FROM users LIMIT 1`).get();
   if (!userExists) {
-    const createUser = db.prepare(`
-      INSERT INTO users (username, email, password) 
-      VALUES (?, ?, ?)
-    `);
-    createUser.run('default_user', 'default@example.com', 'default1234');
+    const result = queries.createUser(db, 'default_user', 'default@example.com', 'default1234')
     console.log('Default user created for development.');
+    if (result?.lastInsertRowid){
+      console.log("creating default portfolio")
+      var portfolio = queries.getOrCreatePortfolio(db, result?.lastInsertRowid);
+      console.log("portfolio created:",portfolio)
+    }
   }
 
   return db;

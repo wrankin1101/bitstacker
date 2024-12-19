@@ -25,7 +25,22 @@ app.get("/api/hello", (req, res) => {
 app.post("/api/createUser", async (req, res) => {
   try {
     const { username, email, password } = req.body;
+
+    console.log("creating user:",username,email,password)
+    const checkUser = queries.getUserByEmail(db, email)
+    if(checkUser){
+      console.log("error: user exists")
+      return res.status(409).json({ error: 'User already exists' });
+    }
+
     const newUser = queries.createUser(db, username, email, password)
+
+    if (newUser?.lastInsertRowid){
+      console.log("creating default portfolio")
+      var portfolio = queries.getOrCreatePortfolio(db, newUser?.lastInsertRowid);
+      console.log("portfolio created:",portfolio)
+    }
+
     res.status(201).json(newUser);
   } catch (error) {
     console.error("Error in createUser:", error);

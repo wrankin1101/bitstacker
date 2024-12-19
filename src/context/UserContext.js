@@ -13,7 +13,12 @@ export const UserProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       try {
-        const userData = await api.loginUser(email, password); 
+        const userData = await api.loginUser(email, password);
+
+        //testing createUser end-to-end 
+        //const testUser = await api.createUser('test', 'test'+email, password); 
+        //console.log('testUser',testUser);
+        
         console.log(userData);
         setUser(userData); 
       } catch (err) {
