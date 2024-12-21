@@ -18,7 +18,7 @@ export const UserProvider = ({ children }) => {
         //testing createUser end-to-end 
         //const testUser = await api.createUser('test', 'test'+email, password); 
         //console.log('testUser',testUser);
-        
+
         console.log(userData);
         setUser(userData); 
       } catch (err) {
@@ -34,9 +34,14 @@ export const UserProvider = ({ children }) => {
         setUser(null); // Clear user state
       // Optionally clear tokens or local storage
     };
+
+    const updateUserPortfolio = (id) => {
+      // Add any logic, validation, or side effects here
+      setPortfolio(id);
+    };
   
     return (
-      <UserContext.Provider value={{ user, login, logout, isLoading, error }}>
+      <UserContext.Provider value={{ user, login, logout, activePortfolio, updateUserPortfolio, isLoading, error }}>
         {children}
       </UserContext.Provider>
     );
