@@ -210,5 +210,48 @@ module.exports = {
   deleteAssetPrice: (db, id) => {
     const stmt = db.prepare('DELETE FROM asset_prices WHERE id = ?');
     return stmt.run(id);
+  },
+
+  // Portfolio History Queries
+  insertPortfolioHistory: (db, portfolioId, date, total, netSpent, profit) => {
+    const stmt = db.prepare('INSERT INTO portfolio_history (portfolio_id, date, total, net_spent, profit) VALUES (?, ?, ?, ?, ?)');
+    return stmt.run(portfolioId, date, total, netSpent, profit);
+  },
+  getPortfolioHistoryById: (db, portfolioId) => {
+    const stmt = db.prepare('SELECT * FROM portfolio_history WHERE portfolio_id = ? ORDER BY date DESC');
+    return stmt.all(portfolioId);
+  },
+  getPortfolioHistoryByDate: (db, portfolioId, date) => {
+    const stmt = db.prepare('SELECT * FROM portfolio_history WHERE portfolio_id = ? AND date = ?');
+    return stmt.get(portfolioId, date);
+  },
+  updatePortfolioHistory: (db, id, updates) => {
+    const updateFields = [];
+    const values = [];
+
+    if (updates.total !== undefined) {
+      updateFields.push('total = ?');
+      values.push(updates.total);
+    }
+    if (updates.netSpent !== undefined) {
+      updateFields.push('net_spent = ?');
+      values.push(updates.netSpent);
+    }
+    if (updates.profit !== undefined) {
+      updateFields.push('profit = ?');
+      values.push(updates.profit);
+    }
+
+    values.push(id);
+    const stmt = db.prepare(`UPDATE portfolio_history SET ${updateFields.join(', ')} WHERE id = ?`);
+    return stmt.run(...values);
+  },
+  deleteSinglePortfolioHistory: (db, id) => {
+    const stmt = db.prepare('DELETE FROM portfolio_history WHERE id = ?');
+    return stmt.run(id);
+  },
+  clearPortfolioHistory: (db, portfolioId) => {
+    const stmt = db.prepare('DELETE FROM portfolio_history WHERE portfolio_id = ?');
+    return stmt.run(portfolioId);
   }
 };

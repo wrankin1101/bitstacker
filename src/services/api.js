@@ -371,6 +371,73 @@ const api = {
       throw error;
     }
   },
+
+  // Portfolio history queries
+  createPortfolioHistory: async (portfolioId, date, total, netSpent, profit) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/portfolioHistory`, {
+        portfolioId,
+        date,
+        total,
+        netSpent,
+        profit,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error in createPortfolioHistory:", error);
+      throw error;
+    }
+  },
+
+  getPortfolioHistoryById: async (portfolioId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/portfolioHistory/${portfolioId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in getPortfolioHistoryById:", error);
+      throw error;
+    }
+  },
+
+  getPortfolioHistoryByDate: async (portfolioId, date) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/portfolioHistory/${portfolioId}/${date}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in getPortfolioHistoryByDate:", error);
+      throw error;
+    }
+  },
+
+  updatePortfolioHistory: async (id, updates) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/portfolioHistory/${id}`, updates);
+      return response.data;
+    } catch (error) {
+      console.error("Error in updatePortfolioHistory:", error);
+      throw error;
+    }
+  },
+
+  deleteSinglePortfolioHistory: async (id) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/portfolioHistory/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in deleteSinglePortfolioHistory:", error);
+      throw error;
+    }
+  },
+
+  clearPortfolioHistory: async (portfolioId) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/portfolioHistory/clear/${portfolioId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in clearPortfolioHistory:", error);
+      throw error;
+    }
+  },
 };
 
 export default api;

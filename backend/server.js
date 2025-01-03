@@ -429,3 +429,77 @@ app.delete("/api/deleteAssetPrice", async (req, res) => {
       .json({ error: "Failed to delete asset price", details: error.message });
   }
 });
+
+// Create a new portfolio history record
+app.post('/api/portfolioHistory', async (req, res) => {
+  try {
+    const { portfolioId, date, total, netSpent, profit } = req.body;
+    const result = queries.createPortfolioHistory(db, portfolioId, date, total, netSpent, profit);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error in createPortfolioHistory:', error);
+    res.status(500).json({ error: 'Failed to create portfolio history', details: error.message });
+  }
+});
+
+// Get all portfolio history records for a specific portfolio
+app.get('/api/portfolioHistory/:portfolioId', async (req, res) => {
+  try {
+    const { portfolioId } = req.params;
+    const history = queries.getPortfolioHistoryById(db, portfolioId);
+    res.json(history);
+  } catch (error) {
+    console.error('Error in getPortfolioHistoryById:', error);
+    res.status(500).json({ error: 'Failed to fetch portfolio history', details: error.message });
+  }
+});
+
+// Get a specific portfolio history record by portfolio ID and date
+app.get('/api/portfolioHistory/:portfolioId/:date', async (req, res) => {
+  try {
+    const { portfolioId, date } = req.params;
+    const history = queries.getPortfolioHistoryByDate(db, portfolioId, date);
+    if (!history) return res.status(404).json({ error: 'Portfolio history not found' });
+    res.json(history);
+  } catch (error) {
+    console.error('Error in getPortfolioHistoryByDate:', error);
+    res.status(500).json({ error: 'Failed to fetch portfolio history', details: error.message });
+  }
+});
+
+// Update a portfolio history record
+app.put('/api/portfolioHistory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const result = queries.updatePortfolioHistory(db, id, updates);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in updatePortfolioHistory:', error);
+    res.status(500).json({ error: 'Failed to update portfolio history', details: error.message });
+  }
+});
+
+// Delete a single portfolio history record
+app.delete('/api/portfolioHistory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = queries.deleteSinglePortfolioHistory(db, id);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in deleteSinglePortfolioHistory:', error);
+    res.status(500).json({ error: 'Failed to delete portfolio history', details: error.message });
+  }
+});
+
+// Clear all portfolio history records for a specific portfolio
+app.delete('/api/portfolioHistory/clear/:portfolioId', async (req, res) => {
+  try {
+    const { portfolioId } = req.params;
+    const result = queries.clearPortfolioHistory(db, portfolioId);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in clearPortfolioHistory:', error);
+    res.status(500).json({ error: 'Failed to clear portfolio history', details: error.message });
+  }
+});
