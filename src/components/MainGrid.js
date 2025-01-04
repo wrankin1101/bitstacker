@@ -12,17 +12,33 @@ import HighlightedCard from './HighlightedCard';
 import PageViewsBarChart from './PageViewsBarChart';
 import SessionsChart from './SessionsChart';
 import StatCard from './StatCard';
-import { fetchDashboardData } from '../data/api';
+import { processHistoryForCards } from '../services/dataCleaner';
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../services/api";
+import { useUser } from "../context/UserContext";
 
 export default function MainGrid() {
-  const [apidata, setData] = useState([]);
   const [interval, setInterval] = useState(30);
 
+  const [cardData, setCardData] = useState([]);
+
+  const { user, activePortfolio } = useUser();
+  const queryClient = useQueryClient();
+
+  //react query
+  const { data: portfolio_history, isLoading, error, } = useQuery({
+    queryKey: ["portfolio_history", activePortfolio],
+    queryFn: () => api.getPortfolioHistoryById(activePortfolio),
+    enabled: activePortfolio != null, //query doesn't run if userId is undefined
+  });
+
   useEffect(() => {
-    fetchDashboardData(interval)
-        .then((apidata) => setData(apidata))
-        .catch((error) => console.error(error));
-  }, [interval]);
+    if (portfolio_history) {
+      let data = processHistoryForCards(portfolio_history,interval);
+      setCardData(data);
+    }
+  }, [portfolio_history,interval]);
 
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
@@ -36,7 +52,7 @@ export default function MainGrid() {
         columns={12}
         sx={{ mb: (theme) => theme.spacing(2) }}
       >
-        {apidata.map((card, index) => (
+        {cardData.map((card, index) => (
           <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
             <StatCard {...card} />
           </Grid>

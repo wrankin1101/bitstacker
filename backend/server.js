@@ -447,6 +447,7 @@ app.get('/api/portfolioHistory/:portfolioId', async (req, res) => {
   try {
     const { portfolioId } = req.params;
     const history = queries.getPortfolioHistoryById(db, portfolioId);
+    console.log(`Got history of length: ${history.length} for portfolioId: ${portfolioId}`);
     res.json(history);
   } catch (error) {
     console.error('Error in getPortfolioHistoryById:', error);

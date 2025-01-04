@@ -69,11 +69,7 @@ export default function SelectPortfolio() {
   const queryClient = useQueryClient();
 
   //react query
-  const {
-    data: portfoliosData,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: portfoliosData, isLoading, error, } = useQuery({
     queryKey: ["getPortfolios", user.id],
     queryFn: () => api.getPortfoliosByUserId(user.id),
     enabled: !!user || !!user.id, //query doesn't run if userId is undefined
@@ -93,6 +89,7 @@ export default function SelectPortfolio() {
     }
   }, [portfoliosData]);
 
+  // Mutations for adding, editing, and deleting portfolios
   const addPortfolio = useMutation({
     mutationFn: () => api.createPortfolio(user.id, portfolioName),
     onSuccess: (data) => {
@@ -131,6 +128,7 @@ export default function SelectPortfolio() {
     },
   });
 
+  // Handle portfolio selection change event and update the active portfolio
   const handleChange = (event) => {
     var portfolioId = event.target.value;
     if (portfolioId === 0) {
@@ -150,7 +148,6 @@ export default function SelectPortfolio() {
   };
 
   const handleDelete = () => {
-    // Implement delete functionality here
     deletePortfolio.mutate();
     console.log(`Delete portfolio with ID: ${portfolioToEdit.id}`);
     setIsDialogOpen(false);
