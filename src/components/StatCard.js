@@ -81,11 +81,10 @@ function StatCard({
               <Typography variant="h4" component="p">
                 {value}
               </Typography>
-              <Stack sx={{ justifyContent: "space-between", gap: 1}}>
-              <Chip size="small" color={color} label={percentChange} />
-              <Chip size="small" color={color} label={usdChange} />
+              <Stack sx={{ justifyContent: "space-between", gap: 1 }}>
+                <Chip size="small" color={color} label={percentChange} />
+                <Chip size="small" color={color} label={usdChange} />
               </Stack>
-              
             </Stack>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               {intervalString}
@@ -101,6 +100,7 @@ function StatCard({
               yAxis={{
                 min: min * 0.9,
                 max: max * 1.1,
+                hideTooltip: true,
               }}
               valueFormatter={(value) =>
                 value === null

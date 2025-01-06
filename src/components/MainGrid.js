@@ -19,7 +19,7 @@ import api from "../services/api";
 import { useUser } from "../context/UserContext";
 
 export default function MainGrid() {
-  const [interval, setInterval] = useState(30);
+  const [interval, setInterval] = useState(90);
 
   const [cardData, setCardData] = useState([]);
 
@@ -30,7 +30,7 @@ export default function MainGrid() {
   const { data: portfolio_history, isLoading, error, } = useQuery({
     queryKey: ["portfolio_history", activePortfolio],
     queryFn: () => api.getPortfolioHistoryById(activePortfolio),
-    enabled: activePortfolio != null, //query doesn't run if userId is undefined
+    enabled: activePortfolio != null, //query doesn't run if no active portfolio
   });
 
   useEffect(() => {
@@ -60,10 +60,10 @@ export default function MainGrid() {
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <HighlightedCard />
         </Grid>
-        <Grid size={{ xs: 12, md: 9 }}>
-          <SessionsChart interval = {interval}/>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <SessionsChart cardData = {cardData} interval = {interval}/>
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <PageViewsBarChart />
         </Grid>
       </Grid>

@@ -115,6 +115,7 @@ export const processHistoryForCards = (data, interval) => {
 
 class ProcessedData {
   constructor(title, data, dates, interval) {
+    this.id = title.toLowerCase().replace(" ", "-");
     this.title = title;
     this.data = data;
     this.dates = dates;
