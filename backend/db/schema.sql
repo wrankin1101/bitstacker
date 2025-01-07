@@ -32,7 +32,18 @@ CREATE TABLE IF NOT EXISTS holdings (
     portfolio_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     category TEXT,
+    sold BOOLEAN NOT NULL DEFAULT 0,
     FOREIGN KEY (portfolio_id) REFERENCES portfolios (id)
+);
+
+CREATE TABLE IF NOT EXISTS holdings_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    holdings_id INTEGER NOT NULL,
+    date TEXT DEFAULT CURRENT_TIMESTAMP,
+    total REAL NOT NULL,
+    net_spent REAL NOT NULL,
+    profit REAL NOT NULL,
+    FOREIGN KEY (holdings_id) REFERENCES holdings (id)
 );
 
 CREATE TABLE IF NOT EXISTS assets (
@@ -46,13 +57,13 @@ CREATE TABLE IF NOT EXISTS assets (
 
 CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    portfolio_id INTEGER NOT NULL,
+    holding_id INTEGER NOT NULL,
     asset_id INTEGER NOT NULL,
     transaction_type TEXT NOT NULL,
     quantity REAL NOT NULL,
     price REAL NOT NULL,
     date TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (portfolio_id) REFERENCES portfolios (id)
+    FOREIGN KEY (holding_id) REFERENCES holdings (id)
     FOREIGN KEY (asset_id) REFERENCES assets (id)
 );
 

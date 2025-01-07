@@ -200,6 +200,7 @@ app.get("/api/getHoldingsByPortfolioId", async (req, res) => {
   try {
     const { portfolioId } = req.query;
     const holdings = queries.getHoldingsByPortfolioId(db, portfolioId);
+    console.log(`Got holdings of length: ${holdings.length} for portfolioId: ${portfolioId}`);
     res.json(holdings);
   } catch (error) {
     console.error("Error in getHoldingsByPortfolioId:", error);

@@ -5,7 +5,8 @@ const queries = require("./queries");
 
 const dbPath = path.resolve(__dirname, "database.sqlite");
 const schemaPath = path.resolve(__dirname, "schema.sql");
-const dataPath = path.resolve(__dirname, "portfoliohistory.json"); // Path to your JSON file
+const portfolioHistoryPath = path.resolve(__dirname, "data/portfoliohistory.json"); // Path to your JSON file
+const holdingsPath = path.resolve(__dirname, "data/holdings.json"); // Path to your JSON file
 
 // Function to initialize the database
 function initializeDatabase(options = {}) {
@@ -46,80 +47,122 @@ function initializeDatabase(options = {}) {
     }
   }
 
-  //initialize the portfolio history table from the JSON file
+  
   if (reset) {
-    // Read and parse the JSON data
-    const jsonData = fs.readFileSync(dataPath, "utf8");
-    const data = JSON.parse(jsonData);
+    //initialize the portfolio history table from the JSON file
+    insertPortfolioHistory(db, portfolioId);
 
-    // Find the objects where title is "Total", "Net Spent", and "Profit"
-    const totalData = data.find((item) => item.title === "Total").values;
-    const netSpentData = data.find((item) => item.title === "Net Spent").values;
-    const profitData = data.find((item) => item.title === "Profit").values;
-
-    // Combine data based on date
-    const combinedData = {};
-
-    const initialData = {
-      totalSum: 0,
-      totalCount: 0,
-      netSpentSum: 0,
-      netSpentCount: 0,
-      profitSum: 0,
-      profitCount: 0,
-    }
-
-    totalData.forEach((item) => {
-      if (item.value === 0) {
-        return;
-      }
-      if (!combinedData[item.date]) {
-        combinedData[item.date] = { ...initialData };
-      }
-      combinedData[item.date].totalSum += item.value;
-      combinedData[item.date].totalCount += 1;
-    });
-
-    netSpentData.forEach((item) => {
-      if (item.value === 0) {
-        return;
-      }
-      if (!combinedData[item.date]) {
-        combinedData[item.date] = { ...initialData };
-      }
-      combinedData[item.date].netSpentSum += item.value;
-      combinedData[item.date].netSpentCount += 1;
-    });
-
-    profitData.forEach((item) => {
-      if (item.value === 0) {
-        return;
-      }
-      if (!combinedData[item.date]) {
-        combinedData[item.date] = { ...initialData };
-      }
-      combinedData[item.date].profitSum += item.value;
-      combinedData[item.date].profitCount += 1;
-    });
-
-    // Generate and execute SQL INSERT statements
-    const insertStmt = db.prepare(
-      `INSERT INTO portfolio_history (portfolio_id, date, total, net_spent, profit) VALUES (?, ?, ?, ?, ?)`
-    );
-
-    db.transaction(() => {
-      for (const [date, values] of Object.entries(combinedData)) {
-        const total = values.totalSum / values.totalCount;
-        const netSpent = values.netSpentSum / values.netSpentCount;
-        const profit = values.profitSum / values.profitCount;
-        insertStmt.run(portfolioId, date, total, netSpent, profit);
-      }
-    })();
-
-    console.log("Data from json inserted into portfolio_history table.");
+    //TODO: insert test holdings and transactions data
+    insertHoldings(db, portfolioId);
   }
 
   return db;
+}
+function insertPortfolioHistory(db, portfolioId) {
+      // Read and parse the JSON data
+      const jsonData = fs.readFileSync(portfolioHistoryPath, "utf8");
+      const data = JSON.parse(jsonData);
+  
+      // Find the objects where title is "Total", "Net Spent", and "Profit"
+      const totalData = data.find((item) => item.title === "Total").values;
+      const netSpentData = data.find((item) => item.title === "Net Spent").values;
+      const profitData = data.find((item) => item.title === "Profit").values;
+  
+      // Combine data based on date
+      const combinedData = {};
+  
+      const initialData = {
+        totalSum: 0,
+        totalCount: 0,
+        netSpentSum: 0,
+        netSpentCount: 0,
+        profitSum: 0,
+        profitCount: 0,
+      }
+  
+      totalData.forEach((item) => {
+        if (item.value === 0) {
+          return;
+        }
+        if (!combinedData[item.date]) {
+          combinedData[item.date] = { ...initialData };
+        }
+        combinedData[item.date].totalSum += item.value;
+        combinedData[item.date].totalCount += 1;
+      });
+  
+      netSpentData.forEach((item) => {
+        if (item.value === 0) {
+          return;
+        }
+        if (!combinedData[item.date]) {
+          combinedData[item.date] = { ...initialData };
+        }
+        combinedData[item.date].netSpentSum += item.value;
+        combinedData[item.date].netSpentCount += 1;
+      });
+  
+      profitData.forEach((item) => {
+        if (item.value === 0) {
+          return;
+        }
+        if (!combinedData[item.date]) {
+          combinedData[item.date] = { ...initialData };
+        }
+        combinedData[item.date].profitSum += item.value;
+        combinedData[item.date].profitCount += 1;
+      });
+  
+      // Generate and execute SQL INSERT statements
+      const insertStmt = db.prepare(
+        `INSERT INTO portfolio_history (portfolio_id, date, total, net_spent, profit) VALUES (?, ?, ?, ?, ?)`
+      );
+  
+      db.transaction(() => {
+        for (const [date, values] of Object.entries(combinedData)) {
+          const total = values.totalSum / values.totalCount;
+          const netSpent = values.netSpentSum / values.netSpentCount;
+          const profit = values.profitSum / values.profitCount;
+          insertStmt.run(portfolioId, date, total, netSpent, profit);
+        }
+      })();
+  
+      console.log("Data from json inserted into portfolio_history table.");
+}
+
+function insertHoldings(db, portfolioId) {
+  // Read and parse the JSON data
+  const jsonData = fs.readFileSync(holdingsPath, "utf8");
+  const data = JSON.parse(jsonData);
+
+  // Generate and execute SQL INSERT statements
+  const insertStmt = db.prepare(
+    `INSERT INTO holdings (portfolio_id, name, category, sold) VALUES (?, ?, ?, ?)`
+  );
+
+  /* Sample data format:
+    {
+      "id": 1,
+      "pageTitle": "ETH",
+      "status": "HODL",
+      "category": "ETH",
+      "profit": 8345,
+      "total": 212423,
+      "gainloss": 18.5,
+      "intervalChange": 0.5,
+      "performance": [123,....]
+    },
+  */
+  db.transaction(() => {
+    for (const [index, values] of Object.entries(data)) {
+      const name = values.pageTitle;
+      const category = values.category;
+      const sold = values.status === "HODL" ? 0 : 1;
+      insertStmt.run(portfolioId, name, category, sold);
+    }
+  })();
+
+  console.log("Data from json inserted into holdings table.");
 }
 
 // Check if this script is being run directly

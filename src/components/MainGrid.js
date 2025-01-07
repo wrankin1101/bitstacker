@@ -22,16 +22,24 @@ export default function MainGrid() {
   const [interval, setInterval] = useState(90);
 
   const [cardData, setCardData] = useState([]);
+  const [holdingData, setHoldingData] = useState([]);
 
   const { user, activePortfolio } = useUser();
   const queryClient = useQueryClient();
 
-  //react query
-  const { data: portfolio_history, isLoading, error, } = useQuery({
+  //card data react query
+  const { data: portfolio_history, portfolioHistoryLoading, portfolioHistoryError, } = useQuery({
     queryKey: ["portfolio_history", activePortfolio],
     queryFn: () => api.getPortfolioHistoryById(activePortfolio),
     enabled: activePortfolio != null, //query doesn't run if no active portfolio
   });
+
+    //holding data react query
+    const { data: holdings, holdingLoading, holdingError, } = useQuery({
+      queryKey: ["holdings", activePortfolio],
+      queryFn: () => api.getHoldingsByPortfolioId(activePortfolio),
+      enabled: activePortfolio != null, //query doesn't run if no active portfolio
+    });
 
   useEffect(() => {
     if (portfolio_history) {
@@ -39,6 +47,13 @@ export default function MainGrid() {
       setCardData(data);
     }
   }, [portfolio_history,interval]);
+
+  useEffect(() => {
+    if (holdings) {
+      //let data = processHistoryForCards(portfolio_history,interval);
+      setHoldingData(holdings);
+    }
+  }, [holdings,interval]);
 
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' } }}>
