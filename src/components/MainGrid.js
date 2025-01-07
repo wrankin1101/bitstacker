@@ -12,7 +12,7 @@ import HighlightedCard from "./HighlightedCard";
 import PageViewsBarChart from "./PageViewsBarChart";
 import SessionsChart from "./SessionsChart";
 import StatCard from "./StatCard";
-import { processHistoryForCards } from "../services/dataCleaner";
+import { processHistoryForCards, ProcessedHoldingData } from "../services/dataCleaner";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../services/api";
@@ -29,36 +29,34 @@ export default function MainGrid() {
   const queryClient = useQueryClient();
 
   //card data react query
-  const {data: portfolio_history, portfolioHistoryLoading, portfolioHistoryError,} = useQuery({
+  const {data: portfolioHistoryQuery, portfolioHistoryLoading, portfolioHistoryError,} = useQuery({
     queryKey: ["portfolio_history", activePortfolio],
     queryFn: () => api.getPortfolioHistoryById(activePortfolio),
     enabled: activePortfolio != null, //query doesn't run if no active portfolio
   });
 
   useEffect(() => {
-    if (portfolio_history) {
-      let data = processHistoryForCards(portfolio_history, interval);
+    if (portfolioHistoryQuery) {
+      let data = processHistoryForCards(portfolioHistoryQuery, interval);
       setCardData(data);
     }
-  }, [portfolio_history, interval]);
+  }, [portfolioHistoryQuery, interval]);
 
 
   //holding data react query
-  const {data: holdings, holdingLoading, holdingError,} = useQuery({
+  const {data: holdingsQuery, holdingLoading, holdingError,} = useQuery({
     queryKey: ["holdings", activePortfolio],
     queryFn: () => api.getHoldingsByPortfolioId(activePortfolio),
     enabled: activePortfolio != null, //query doesn't run if no active portfolio
   });
 
   useEffect(() => {
-    if (holdings) {
-      const initializedHoldings = holdings.map((holding) => ({
-        ...holding,
-        history: [],
-      }));
+    if (holdingsQuery) {
+      const initializedHoldings = holdingsQuery.map((holding) => new ProcessedHoldingData(holding));
       setHoldingData(initializedHoldings);
+      setCurrentHoldingIndex(0); // Reset currentHoldingIndex when holdings change
     }
-  }, [holdings, interval]);
+  }, [holdingsQuery]);
 
   //holdings history lazy loading + state
   const fetchHoldingsHistory = async (holdingId) => {
@@ -66,26 +64,34 @@ export default function MainGrid() {
     return data;
   };
 
-  const { data: holdingHistoryData, holdingHistoryisLoading, holdingHistoryisError, holdingHistoryError,} = useQuery({
+  const { data: holdingHistoryQuery, holdingHistoryisLoading, holdingHistoryisError, holdingHistoryError,} = useQuery({
     queryKey: ["holdingsHistory", holdingsData[currentHoldingIndex]?.id],
     queryFn: () => fetchHoldingsHistory(holdingsData[currentHoldingIndex]?.id),
     enabled: holdingsData.length > 0 && currentHoldingIndex < holdingsData.length,
   });
 
   useEffect(() => {
-    if (holdingHistoryData) {
-      setHoldingData((prevHoldingData) =>
-        prevHoldingData.map((holding, index) =>
-          index === currentHoldingIndex ? { ...holding, history: holdingHistoryData } : holding
-        )
-      );
-
+    if (holdingHistoryQuery) {
+      setHoldingData((prevHoldingData) => {
+        // Create a shallow copy of the previous holding data
+        const updatedHoldingData = [...prevHoldingData];
+  
+        // Check if the current holding index is within bounds
+        if (currentHoldingIndex < updatedHoldingData.length) {
+          // Update the holding object with the new history and interval
+          updatedHoldingData[currentHoldingIndex].addHistory(holdingHistoryQuery);
+          updatedHoldingData[currentHoldingIndex].addInterval(interval);
+        }
+        // Return the updated holding data
+        return updatedHoldingData;
+      });
+  
       // Move to the next holding
       if (currentHoldingIndex < holdingsData.length - 1) {
         setCurrentHoldingIndex((prevIndex) => prevIndex + 1);
       }
     }
-  }, [holdingHistoryData]);
+  }, [holdingHistoryQuery]);
 
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
@@ -119,7 +125,7 @@ export default function MainGrid() {
       </Typography>
       <Grid container spacing={2} columns={12}>
         <Grid size={{ xs: 12, lg: 9 }}>
-          <CustomizedDataGrid holdings={holdingsData}/>
+          <CustomizedDataGrid holdingsData={holdingsData}/>
         </Grid>
         <Grid size={{ xs: 12, lg: 3 }}>
           <Stack gap={2} direction={{ xs: "column", sm: "row", lg: "column" }}>

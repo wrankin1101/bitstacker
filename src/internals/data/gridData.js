@@ -44,7 +44,6 @@ function renderSparklineCell(params) {
     </div>
   );
 }
-
 function renderStatus(status) {
   const colors = {
     HODL: 'success',
@@ -75,7 +74,6 @@ function renderPercent(percent) {
   }
   return <Chip label={formattedPercent} color={color} size="medium" />;
 }
-
 export function renderAvatar(params) {
   if (params.value == null) {
     return '';

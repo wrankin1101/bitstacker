@@ -6,19 +6,18 @@ export const processHistoryForCards = (data, interval) => {
 
   if (data.length === 0) {
     return [
-      new ProcessedData("Total", [], [], interval),
-      new ProcessedData("Net Spent", [], [], interval),
-      new ProcessedData("Profit", [], [], interval),
+      new ProcessedCardData("Total", [], [], interval),
+      new ProcessedCardData("Net Spent", [], [], interval),
+      new ProcessedCardData("Profit", [], [], interval),
     ];
   }
-
-  //{id: 42, portfolio_id: 1, date: "12/29/2023", total: 5506.91, net_spent: 3965.0099999999998, profit: 1865.0433333333333,  }
 
   // Step 1: Remove entries with value: 0
   const filteredValues = data.filter(
     (entry) => entry.total !== 0 && entry.net_spent !== 0 && entry.profit !== 0
   );
 
+  // Step 2: Group values by date
   const initialData = {
     totalSum: 0,
     totalCount: 0,
@@ -27,8 +26,6 @@ export const processHistoryForCards = (data, interval) => {
     profitSum: 0,
     profitCount: 0,
   };
-
-  // Step 2: Group values by date
   const groupedByDate = filteredValues.reduce((acc, current) => {
     const { date, total, net_spent, profit } = current;
     if (!acc[date]) {
@@ -62,58 +59,37 @@ export const processHistoryForCards = (data, interval) => {
       profit: profitSum / profitCount,
     })
   );
-
-  //sort by date
-  const sortedByDate = averagedValues.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateA - dateB;
-  });
-  // A - B = sorted oldest first -> newest last
-  // B - A = sorted newest first -> oldest last
-
-  //cutoff past interval
-  const newestDate = new Date(sortedByDate[sortedByDate.length - 1].date);
-  const cutoffDate = new Date(
-    newestDate.getTime() - interval * 24 * 60 * 60 * 1000
-  ); // Subtract interval in milliseconds
-
-  let dateCutoff = sortedByDate.filter((item) => {
-    const itemDate = new Date(item.date);
-    return itemDate >= cutoffDate; // Keep only dates within the interval
-  });
+  let dateCutoff = sortAndCutoff(averagedValues, interval);
 
   // Step 4: Process data for each card
-
   const dates = dateCutoff.map((item) => item.date);
 
   // Initialize processedData using the ProcessedData class
   const processedData = [
-    new ProcessedData(
+    new ProcessedCardData(
       "Total",
       dateCutoff.map((item) => item.total),
       dates,
       interval
     ),
-    new ProcessedData(
+    new ProcessedCardData(
       "Net Spent",
       dateCutoff.map((item) => item.netSpent),
       dates,
       interval
     ),
-    new ProcessedData(
+    new ProcessedCardData(
       "Profit",
       dateCutoff.map((item) => item.profit),
       dates,
       interval
     ),
   ];
-  console.log(processedData);
   // Return processed data
   return processedData;
 };
 
-class ProcessedData {
+class ProcessedCardData {
   constructor(title, data, dates, interval) {
     this.id = title.toLowerCase().replace(" ", "-");
     this.title = title;
@@ -186,4 +162,91 @@ class ProcessedData {
     this.percentChange = formattedPercent;
     this.usdChange = formattedUsdChange;
   }
+}
+
+export class ProcessedHoldingData {
+  constructor(holding) {
+    this.id = holding.id;
+    this.name = holding.name;
+    this.category = holding.category;
+    this.sold = holding.sold;
+    this.portfolio_id = holding.portfolio_id;
+
+    this.history = [];
+    this.performance = [];
+    this.dates = [];
+    this.profit = 0;
+    this.total = 0;
+    this.net_spent = 0;
+    this.gainloss = 0;
+    this.intervalChange = 0;
+    this.interval = 0;
+  }
+  addHistory(history) {
+    this.history = history;
+  }
+  addInterval(interval) {
+    const intervalNumber = Number(interval);
+    if (isNaN(intervalNumber)) {
+      throw new Error("Interval is not a valid number: " + interval);
+    }
+    this.interval = interval;
+
+    if (this.history.length === 0) {
+      console.log("No history data for holding: ", this.name);
+      return;
+    }
+    let dateCutoff = sortAndCutoff(this.history, interval);
+
+    this.performance = dateCutoff.map((item) => item.total);
+    this.dates = dateCutoff.map((item) => item.date);
+    this.profit = dateCutoff[0].profit;
+    this.total = dateCutoff[0].total;
+    this.net_spent = dateCutoff[0].net_spent;
+    this.gainloss = dateCutoff[0].profit / dateCutoff[0].net_spent;
+    this.intervalChange =
+      dateCutoff[dateCutoff.length - 1].total / dateCutoff[0].total - 1;
+  }
+}
+
+const sortAndCutoff = (data, interval, direction = "asc") => {
+  if (data.length === 0) {
+    console.log("dataCleaner: No data to sort or cutoff");
+    return [];
+  }
+  if (interval === 0 ) {
+    console.log("dataCleaner: Interval is 0, returning unsorted data");
+    return data;
+  }
+  if (data[0].date === undefined) {
+    console.log("dataCleaner: No date field in data, returning unsorted");
+    return data;
+  }
+
+  //sort by date
+  const sortedByDate = data.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    //oldest first -> newest last
+    if (direction === "asc") {
+      return dateA - dateB;
+    }
+    //newest first -> oldest last
+    else {
+      return dateB - dateA;
+    }
+  });
+  
+  //cutoff past interval
+  const newestDate = new Date(sortedByDate[sortedByDate.length - 1].date);
+  const cutoffDate = new Date(
+    newestDate.getTime() - interval * 24 * 60 * 60 * 1000
+  ); // Subtract interval in milliseconds
+
+  let dateCutoff = sortedByDate.filter((item) => {
+    const itemDate = new Date(item.date);
+    return itemDate >= cutoffDate; // Keep only dates within the interval
+  });
+
+  return dateCutoff;
 }
