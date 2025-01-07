@@ -18,7 +18,7 @@ app.listen(PORT, () => {
 // Routes
 app.get("/api/hello", (req, res) => {
   console.log('Dispatching singular "Hello"');
-  res.json({ message: "Hello from the server!" });
+  res.json({ message: "Your hello as been delivered. Payload: H3110. Please enjoy this hello." });
 });
 
 // User Routes
@@ -503,5 +503,80 @@ app.delete('/api/portfolioHistory/clear/:portfolioId', async (req, res) => {
   } catch (error) {
     console.error('Error in clearPortfolioHistory:', error);
     res.status(500).json({ error: 'Failed to clear portfolio history', details: error.message });
+  }
+});
+
+// Create a new holdings history record
+app.post('/api/holdingsHistory', async (req, res) => {
+  try {
+    const { holdingsId, date, total, netSpent, profit } = req.body;
+    const result = queries.insertHoldingsHistory(db, holdingsId, date, total, netSpent, profit);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error in createHoldingsHistory:', error);
+    res.status(500).json({ error: 'Failed to create holdings history', details: error.message });
+  }
+});
+
+// Get all holdings history records for a specific holding
+app.get('/api/holdingsHistory/:holdingsId', async (req, res) => {
+  try {
+    const { holdingsId } = req.params;
+    const history = queries.getHoldingsHistoryById(db, holdingsId);
+    console.log(`Got history of length: ${history.length} for holdingsId: ${holdingsId}`);
+    res.json(history);
+  } catch (error) {
+    console.error('Error in getHoldingsHistoryById:', error);
+    res.status(500).json({ error: 'Failed to fetch holdings history', details: error.message });
+  }
+});
+
+// Get a specific holdings history record by holdings ID and date
+app.get('/api/holdingsHistory/:holdingsId/:date', async (req, res) => {
+  try {
+    const { holdingsId, date } = req.params;
+    const history = queries.getHoldingsHistoryByDate(db, holdingsId, date);
+    if (!history) return res.status(404).json({ error: 'Holdings history not found' });
+    res.json(history);
+  } catch (error) {
+    console.error('Error in getHoldingsHistoryByDate:', error);
+    res.status(500).json({ error: 'Failed to fetch holdings history', details: error.message });
+  }
+});
+
+// Update a holdings history record
+app.put('/api/holdingsHistory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const result = queries.updateHoldingsHistory(db, id, updates);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in updateHoldingsHistory:', error);
+    res.status(500).json({ error: 'Failed to update holdings history', details: error.message });
+  }
+});
+
+// Delete a single holdings history record
+app.delete('/api/holdingsHistory/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = queries.deleteSingleHoldingsHistory(db, id);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in deleteSingleHoldingsHistory:', error);
+    res.status(500).json({ error: 'Failed to delete holdings history', details: error.message });
+  }
+});
+
+// Clear all holdings history records for a specific holding
+app.delete('/api/holdingsHistory/clear/:holdingsId', async (req, res) => {
+  try {
+    const { holdingsId } = req.params;
+    const result = queries.clearHoldingsHistory(db, holdingsId);
+    res.json(result);
+  } catch (error) {
+    console.error('Error in clearHoldingsHistory:', error);
+    res.status(500).json({ error: 'Failed to clear holdings history', details: error.message });
   }
 });

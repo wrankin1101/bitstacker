@@ -7,6 +7,7 @@ const dbPath = path.resolve(__dirname, "database.sqlite");
 const schemaPath = path.resolve(__dirname, "schema.sql");
 const portfolioHistoryPath = path.resolve(__dirname, "data/portfoliohistory.json"); // Path to your JSON file
 const holdingsPath = path.resolve(__dirname, "data/holdings.json"); // Path to your JSON file
+const holdingsHistoryPath = path.resolve(__dirname, "data/holdingshistory.json"); // Path to your JSON file
 
 // Function to initialize the database
 function initializeDatabase(options = {}) {
@@ -113,17 +114,29 @@ function insertPortfolioHistory(db, portfolioId) {
         combinedData[item.date].profitCount += 1;
       });
   
+      const entries = [];
+      for (const [date, values] of Object.entries(combinedData)) {
+        let entry = {
+          date,
+          total: values.totalSum / values.totalCount,
+          netSpent: values.netSpentSum / values.netSpentCount,
+          profit: values.profitSum / values.profitCount,
+        }
+        entries.push(entry);
+      }
+      // Write combined data to a JSON file
+      const combinedDataPath = path.resolve(__dirname, 'data/dummyData.json'); // Path to save combined data
+      fs.writeFileSync(combinedDataPath, JSON.stringify(entries, null, 2));
+      console.log('Combined data written to dummyData.json');
+
       // Generate and execute SQL INSERT statements
       const insertStmt = db.prepare(
         `INSERT INTO portfolio_history (portfolio_id, date, total, net_spent, profit) VALUES (?, ?, ?, ?, ?)`
       );
   
       db.transaction(() => {
-        for (const [date, values] of Object.entries(combinedData)) {
-          const total = values.totalSum / values.totalCount;
-          const netSpent = values.netSpentSum / values.netSpentCount;
-          const profit = values.profitSum / values.profitCount;
-          insertStmt.run(portfolioId, date, total, netSpent, profit);
+        for (const entry of entries) {
+          insertStmt.run(portfolioId, entry.date, entry.total, entry.netSpent, entry.profit);
         }
       })();
   
@@ -135,30 +148,34 @@ function insertHoldings(db, portfolioId) {
   const jsonData = fs.readFileSync(holdingsPath, "utf8");
   const data = JSON.parse(jsonData);
 
+  const jsonDataHistory = fs.readFileSync(holdingsHistoryPath, "utf8");
+  const historyData = JSON.parse(jsonDataHistory);
+
   // Generate and execute SQL INSERT statements
   const insertStmt = db.prepare(
     `INSERT INTO holdings (portfolio_id, name, category, sold) VALUES (?, ?, ?, ?)`
   );
+  const insertHistoryStmt = db.prepare(
+    `INSERT INTO holdings_history (holdings_id, date, total, net_spent, profit) VALUES (?, ?, ?, ?, ?)`
+  );
 
-  /* Sample data format:
-    {
-      "id": 1,
-      "pageTitle": "ETH",
-      "status": "HODL",
-      "category": "ETH",
-      "profit": 8345,
-      "total": 212423,
-      "gainloss": 18.5,
-      "intervalChange": 0.5,
-      "performance": [123,....]
-    },
-  */
+  console.log("Inserting data from json into holdings table...");
   db.transaction(() => {
     for (const [index, values] of Object.entries(data)) {
       const name = values.pageTitle;
       const category = values.category;
       const sold = values.status === "HODL" ? 0 : 1;
-      insertStmt.run(portfolioId, name, category, sold);
+      const inserted = insertStmt.run(portfolioId, name, category, sold);
+
+      console.log("Inserted holding with ID:", inserted.lastInsertRowid);
+
+      // Insert history data for the inserted holding
+      const holdingId = inserted.lastInsertRowid;
+
+      for (const history of historyData) {
+        insertHistoryStmt.run(holdingId, history.date, history.total, history.netSpent, history.profit);
+      }
+      console.log(`Inserted history data length ${historyData.length} for holding with ID: ${holdingId}`);
     }
   })();
 

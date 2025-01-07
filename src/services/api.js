@@ -438,6 +438,73 @@ const api = {
       throw error;
     }
   },
+
+  // Holdings history queries
+  createHoldingsHistory: async (holdingsId, date, total, netSpent, profit) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/holdingsHistory`, {
+        holdingsId,
+        date,
+        total,
+        netSpent,
+        profit,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error in createHoldingsHistory:", error);
+      throw error;
+    }
+  },
+
+  getHoldingsHistoryById: async (holdingsId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/holdingsHistory/${holdingsId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in getHoldingsHistoryById:", error);
+      throw error;
+    }
+  },
+
+  getHoldingsHistoryByDate: async (holdingsId, date) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/holdingsHistory/${holdingsId}/${date}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in getHoldingsHistoryByDate:", error);
+      throw error;
+    }
+  },
+
+  updateHoldingsHistory: async (id, updates) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/holdingsHistory/${id}`, updates);
+      return response.data;
+    } catch (error) {
+      console.error("Error in updateHoldingsHistory:", error);
+      throw error;
+    }
+  },
+
+  deleteSingleHoldingsHistory: async (id) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/holdingsHistory/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in deleteSingleHoldingsHistory:", error);
+      throw error;
+    }
+  },
+
+  clearHoldingsHistory: async (holdingsId) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/holdingsHistory/clear/${holdingsId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error in clearHoldingsHistory:", error);
+      throw error;
+    }
+  },
 };
 
 export default api;
