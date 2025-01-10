@@ -62,7 +62,14 @@ export const processHistoryForCards = (data, interval) => {
   let dateCutoff = sortAndCutoff(averagedValues, interval);
 
   // Step 4: Process data for each card
-  const dates = dateCutoff.map((item) => item.date);
+  const dates = dateCutoff.map((item) => {
+    const date = new Date(item.date);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  });
 
   // Initialize processedData using the ProcessedData class
   const processedData = [
@@ -203,13 +210,22 @@ export class ProcessedHoldingData {
     let dateCutoff = sortAndCutoff(this.history, interval);
 
     this.performance = dateCutoff.map((item) => item.total);
-    this.dates = dateCutoff.map((item) => item.date);
-    this.profit = dateCutoff[0].profit;
-    this.total = dateCutoff[0].total;
-    this.net_spent = dateCutoff[0].net_spent;
-    this.gainloss = dateCutoff[0].profit / dateCutoff[0].net_spent;
+    const lastIndex = dateCutoff.length - 1;
+
+    this.dates = dateCutoff.map((item) => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    });
+    this.profit = dateCutoff[lastIndex].profit;
+    this.total = dateCutoff[lastIndex].total;
+    this.net_spent = dateCutoff[lastIndex].net_spent;
+    this.gainloss = dateCutoff[lastIndex].profit / dateCutoff[lastIndex].net_spent;
     this.intervalChange =
-      dateCutoff[dateCutoff.length - 1].total / dateCutoff[0].total - 1;
+      dateCutoff[lastIndex].total / dateCutoff[0].total - 1;
   }
 }
 
@@ -231,11 +247,11 @@ const sortAndCutoff = (data, interval, direction = "asc") => {
   const sortedByDate = data.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
-    //oldest first -> newest last
+    //oldest -> newest
     if (direction === "asc") {
       return dateA - dateB;
     }
-    //newest first -> oldest last
+    //newest -> last
     else {
       return dateB - dateA;
     }

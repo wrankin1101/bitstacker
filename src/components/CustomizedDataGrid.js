@@ -89,7 +89,13 @@ function renderAvatar(params) {
 }
 
 export const columns = [
-  { field: "name", headerName: "Name", flex: 1.5, minWidth: 200 },
+  { field: "name", headerName: "Name", flex: 1.5, minWidth: 100 },
+  {
+    field: "category",
+    headerName: "Category",
+    flex: 0.5,
+    minWidth: 80,
+  },
   {
     field: "sold",
     headerName: "Status",

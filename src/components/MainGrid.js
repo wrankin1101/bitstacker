@@ -39,6 +39,11 @@ export default function MainGrid() {
     }
   }, [portfolioHistoryQuery, interval]);
 
+  // Callback function to handle value passed up from HoldingsGrid
+  const handleHoldingDataUpdate = (updatedHoldingData) => {
+    setHoldingData(updatedHoldingData);
+  };
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -65,7 +70,7 @@ export default function MainGrid() {
         <Grid size={{ xs: 12, md: 4 }}>
           <PageViewsBarChart />
         </Grid>
-        <HoldingsGrid activePortfolio={activePortfolio} interval={interval}/>
+        <HoldingsGrid activePortfolio={activePortfolio} interval={interval} onHoldingDataUpdate={handleHoldingDataUpdate}/>
       </Grid>
       <Copyright sx={{ my: 4 }} />
     </Box>

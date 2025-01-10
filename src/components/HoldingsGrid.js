@@ -10,7 +10,7 @@ import ChartUserByCountry from "./ChartUserByCountry";
 import CustomizedTreeView from "./CustomizedTreeView";
 import CustomizedDataGrid from "./CustomizedDataGrid";
 
-export default function HoldingsGrid({ activePortfolio, interval }) {
+export default function HoldingsGrid({ activePortfolio, interval, onHoldingDataUpdate }) {
   const [holdingsData, setHoldingData] = useState([]);
   const [currentHoldingIndex, setCurrentHoldingIndex] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
@@ -36,6 +36,10 @@ export default function HoldingsGrid({ activePortfolio, interval }) {
   });
 
   useEffect(() => {
+    setCurrentHoldingIndex(0);
+  }, [activePortfolio]);
+  
+  useEffect(() => {
     if (holdingsQuery) {
       setHoldingData((prevHoldingData) => {
         let indexSet = false;
@@ -54,7 +58,7 @@ export default function HoldingsGrid({ activePortfolio, interval }) {
             }
           }
         });
-  
+        onHoldingDataUpdate(mergedHoldings); // Pass the updated holding data up to MainGrid  
         return mergedHoldings;
       });
     }
@@ -84,6 +88,7 @@ export default function HoldingsGrid({ activePortfolio, interval }) {
           updatedHoldingData[currentHoldingIndex].addHistory(holdingHistoryQuery);
           updatedHoldingData[currentHoldingIndex].addInterval(interval);
         }
+        onHoldingDataUpdate(updatedHoldingData); // Pass the updated holding data up to MainGrid
         // Return the updated holding data
         return updatedHoldingData;
       });

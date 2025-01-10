@@ -136,7 +136,8 @@ function insertPortfolioHistory(db, portfolioId) {
   
       db.transaction(() => {
         for (const entry of entries) {
-          insertStmt.run(portfolioId, entry.date, entry.total, entry.netSpent, entry.profit);
+          const isoDate = new Date(entry.date).toISOString();
+          insertStmt.run(portfolioId, isoDate, entry.total, entry.netSpent, entry.profit);
         }
       })();
   
@@ -173,7 +174,8 @@ function insertHoldings(db, portfolioId) {
       const holdingId = inserted.lastInsertRowid;
 
       for (const history of historyData) {
-        insertHistoryStmt.run(holdingId, history.date, history.total, history.netSpent, history.profit);
+        const isoDate = new Date(history.date).toISOString();
+        insertHistoryStmt.run(holdingId, isoDate, history.total, history.netSpent, history.profit);
       }
       console.log(`Inserted history data length ${historyData.length} for holding with ID: ${holdingId}`);
     }
