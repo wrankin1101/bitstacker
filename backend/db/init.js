@@ -37,7 +37,7 @@ function initializeDatabase(options = {}) {
       db,
       "default_user",
       "default@example.com",
-      "default1234"
+      "Bitstacker1!"
     );
     console.log("Default user created for development.");
     if (result?.lastInsertRowid) {

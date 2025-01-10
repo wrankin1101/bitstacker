@@ -110,6 +110,27 @@ module.exports = {
     const stmt = db.prepare("SELECT * FROM holdings WHERE portfolio_id = ?");
     return stmt.all(portfolioId);
   },
+  // Get holdings with the most recent history data
+  getHoldingsWithRecentHistoryByPortfolioId: (db, portfolioId) => {
+    const stmt = db.prepare(`
+      SELECT h.*, hh.date AS history_date, hh.total, hh.net_spent, hh.profit
+      FROM holdings h
+      LEFT JOIN (
+        SELECT hh1.*
+        FROM holdings_history hh1
+        INNER JOIN (
+          SELECT holdings_id, MAX(date) AS max_date
+          FROM holdings_history
+          GROUP BY holdings_id
+        ) hh2
+        ON hh1.holdings_id = hh2.holdings_id AND hh1.date = hh2.max_date
+      ) hh
+      ON h.id = hh.holdings_id
+      WHERE h.portfolio_id = ?
+    `);
+    return stmt.all(portfolioId);
+  },
+
   updateHolding: (db, id, updates) => {
     const updateFields = [];
     const values = [];

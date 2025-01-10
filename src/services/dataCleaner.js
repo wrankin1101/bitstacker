@@ -172,18 +172,22 @@ export class ProcessedHoldingData {
     this.sold = holding.sold;
     this.portfolio_id = holding.portfolio_id;
 
+    this.profit = holding.profit !== undefined ? holding.profit : 0;
+    this.total = holding.total !== undefined ? holding.total : 0;
+    this.net_spent = holding.net_spent !== undefined ? holding.net_spent : 0;
+    //this.gainloss = this.net_spent !== 0 ? this.profit / this.net_spent : 0;
+    
+    this.gainloss = 0;
     this.history = [];
+    this.historyLoaded = false;
     this.performance = [];
     this.dates = [];
-    this.profit = 0;
-    this.total = 0;
-    this.net_spent = 0;
-    this.gainloss = 0;
     this.intervalChange = 0;
     this.interval = 0;
   }
   addHistory(history) {
     this.history = history;
+    this.historyLoaded = true;
   }
   addInterval(interval) {
     const intervalNumber = Number(interval);

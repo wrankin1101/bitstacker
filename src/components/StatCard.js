@@ -15,7 +15,7 @@ function AreaGradient({ color, id }) {
     <defs>
       <linearGradient id={id} x1="50%" y1="0%" x2="50%" y2="100%">
         <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-        <stop offset="100%" stopColor={color} stopOpacity={0} />
+        <stop offset="50%" stopColor={color} stopOpacity={0} />
       </linearGradient>
     </defs>
   );
@@ -27,6 +27,7 @@ AreaGradient.propTypes = {
 };
 
 function StatCard({
+  id,
   title,
   value,
   intervalString,
@@ -44,11 +45,11 @@ function StatCard({
     up:
       theme.palette.mode === "light"
         ? theme.palette.success.main
-        : theme.palette.success.dark,
+        : theme.palette.success.main,
     down:
       theme.palette.mode === "light"
         ? theme.palette.error.main
-        : theme.palette.error.dark,
+        : theme.palette.error.main,
     neutral:
       theme.palette.mode === "light"
         ? theme.palette.grey[400]
@@ -116,11 +117,11 @@ function StatCard({
               }}
               sx={{
                 [`& .${areaElementClasses.root}`]: {
-                  fill: `url(#area-gradient-${value})`,
+                  fill: `url(#area-gradient-${id})`,
                 },
               }}
             >
-              <AreaGradient color={chartColor} id={`area-gradient-${value}`} />
+              <AreaGradient color={chartColor} id={`area-gradient-${id}`} />
             </SparkLineChart>
           </Box>
         </Stack>
